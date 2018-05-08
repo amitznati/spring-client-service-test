@@ -1,0 +1,7 @@
+   
+server:
+  port: 8307
+  
+spring:
+  application:
+    name: call-canter
