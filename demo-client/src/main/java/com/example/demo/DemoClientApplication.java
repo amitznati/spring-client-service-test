@@ -6,7 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.hal.Jackson2HalModule;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -87,6 +91,7 @@ class FooBarController {
 			jsonNodeBar.put("foo", fooUrl+"/"+fooId);
 			uri = restTemplate.postForLocation(barUrl, jsonNodeBar);
 			retVal = restTemplate.getForObject(uri, Bar.class);
+			retVal.setFoo(restTemplate.getForObject(fooUrl+"/"+fooId, Foo.class));
 		}catch (Exception e) {
 			throw e;
 		}
