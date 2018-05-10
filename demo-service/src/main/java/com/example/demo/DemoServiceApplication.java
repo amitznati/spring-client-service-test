@@ -80,7 +80,7 @@ class Bar {
 	private String name;
 	@OneToOne
     @JoinColumn(name = "foo_id")
-    @RestResource(path = "barFoo", rel="foo")
+    @RestResource(path = "foo", rel="foo")
 	private Foo foo;
 	
 }
