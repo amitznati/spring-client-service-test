@@ -1,10 +1,14 @@
 package com.example.demo;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +31,10 @@ import lombok.RequiredArgsConstructor;
 public class DemoServiceApplication {
 
 	@Autowired
-	BarRepository br;
+	BookRepository br;
 	
 	@Autowired
-	FooRepository fr;
+	LibraryRepository fr;
 	
 	@Bean
 	CommandLineRunner runner(){
@@ -42,8 +46,8 @@ public class DemoServiceApplication {
 	
 	private void addData() {
 		
-		fr.save(new Foo(null,"foo1",null));
-		br.save(new Bar(null,"bar1",null));
+		fr.save(new Library(null,"library 1",null));
+		br.save(new Book(null,"book 1",null));
 		
 	}
 
@@ -59,13 +63,13 @@ class ExposeEntityIdRestMvcConfiguration extends RepositoryRestConfigurerAdapter
 
   @Override
   public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
-    config.exposeIdsFor(Bar.class);
-    config.exposeIdsFor(Foo.class);
+    config.exposeIdsFor(Book.class);
+    config.exposeIdsFor(Library.class);
   }
 }
 
-@RepositoryRestResource(collectionResourceRel = "bars", path = "bars")
-interface BarRepository extends JpaRepository<Bar, Long> {
+@RepositoryRestResource(collectionResourceRel = "books", path = "books")
+interface BookRepository extends JpaRepository<Book, Long> {
 
 }
 
@@ -73,20 +77,19 @@ interface BarRepository extends JpaRepository<Bar, Long> {
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
-class Bar {
+class Book {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
-	@OneToOne
-    @JoinColumn(name = "foo_id")
-    @RestResource(path = "foo", rel="foo")
-	private Foo foo;
+	@ManyToOne
+    @JoinColumn(name = "library_id")
+	private Library library;
 	
 }
 
-@RepositoryRestResource(collectionResourceRel = "foos", path = "foos")
-interface FooRepository extends JpaRepository<Foo, Long> {
+@RepositoryRestResource(collectionResourceRel = "libraries", path = "libraries")
+interface LibraryRepository extends JpaRepository<Library, Long> {
 
 }
 
@@ -94,13 +97,13 @@ interface FooRepository extends JpaRepository<Foo, Long> {
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
-class Foo {
+class Library {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
-	@OneToOne(mappedBy = "foo")
-	private Bar bar;
+	@OneToMany(mappedBy = "library")
+	private List<Book> books;
 }
 
 

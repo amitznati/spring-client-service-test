@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -43,29 +44,29 @@ public class DemoClientApplication {
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
-class Foo {
+class Library {
 
 	private Long id;
 	private String name;
-	private Bar bar;
+	private List<Book> books;
 	
 }
 
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
-class Bar {
+class Book {
 
 	private Long id;
 	private String name;
-	private Foo foo;
+	private Library library;
 	
 }
 
 
 
 @RestController
-class FooBarController {
+class librarybookController {
 
 //	@Bean
 //	public ObjectMapper getObjectMapperWithHalModule() {
@@ -77,24 +78,24 @@ class FooBarController {
 	@Autowired
 	RestTemplate restTemplate;
 	
-	String barUrl = "http://localhost:8401/bars";
-	String fooUrl = "http://localhost:8401/foos";
+	String bookUrl = "http://localhost:8401/books";
+	String libraryUrl = "http://localhost:8401/libraries";
 	
-	@PostMapping("/api/bars")
-	public Bar addBar(@RequestBody Bar bar,	@RequestParam("foo_id") int fooId){
-		Bar retVal = null;
+	@PostMapping("/api/books")
+	public String addbook(@RequestBody Book book,	@RequestParam("library_id") int libraryId){
+		Book retVal = null;
 		URI uri = null;
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
 			objectMapper.registerModule(new Jackson2HalModule());
-			ObjectNode jsonNodeBar = (ObjectNode) objectMapper.valueToTree(bar);
-			jsonNodeBar.put("foo", fooUrl+"/"+fooId);
-			uri = restTemplate.postForLocation(barUrl, jsonNodeBar);
-			retVal = restTemplate.getForObject(uri, Bar.class);
-			retVal.setFoo(restTemplate.getForObject(fooUrl+"/"+fooId, Foo.class));
+			ObjectNode jsonNodebook = (ObjectNode) objectMapper.valueToTree(book);
+			jsonNodebook.put("library", libraryUrl+"/"+libraryId);
+			uri = restTemplate.postForLocation(bookUrl, jsonNodebook);
+//			retVal = restTemplate.getForObject(uri, Book.class);
+//			retVal.setLibrary(restTemplate.getForObject(libraryUrl+"/"+libraryId, Library.class));
 		}catch (Exception e) {
 			throw e;
 		}
-		return retVal;
+		return uri.toString();
 	}
 }
