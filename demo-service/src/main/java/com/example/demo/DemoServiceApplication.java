@@ -2,14 +2,16 @@ package com.example.demo;
 
 import java.util.List;
 
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -18,7 +20,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
 import org.springframework.stereotype.Component;
@@ -45,9 +46,9 @@ public class DemoServiceApplication {
 	}
 	
 	private void addData() {
-		
-		fr.save(new Library(null,"library 1",null));
-		br.save(new Book(null,"book 1",null));
+		Library l = new Library(null,"library 1",null);
+		fr.save(l);
+		br.save(new Book(null,"book 1",l));
 		
 	}
 
@@ -73,6 +74,7 @@ interface BookRepository extends JpaRepository<Book, Long> {
 
 }
 
+@Embeddable
 @Entity
 @Data
 @RequiredArgsConstructor
@@ -82,7 +84,7 @@ class Book {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
-	@ManyToOne
+	@ManyToOne()
     @JoinColumn(name = "library_id")
 	private Library library;
 	
@@ -102,8 +104,13 @@ class Library {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
-	@OneToMany(mappedBy = "library")
+	@OneToMany(mappedBy = "library",fetch = FetchType.EAGER)
 	private List<Book> books;
+	
+	@Transient
+	public List<Book> getBooks(){
+		return this.books;
+	}
 }
 
 
